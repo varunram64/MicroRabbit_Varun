@@ -1,11 +1,9 @@
 ﻿using MicroRabbit.Banking.Application.Interfaces;
+using MicroRabbit.Banking.Application.ViewModels;
 using MicroRabbit.Banking.Domain.Models;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace MicroRabbit.Banking.API.Controllers
 {
@@ -32,6 +30,15 @@ namespace MicroRabbit.Banking.API.Controllers
             {
                 return NotFound(ex.Message);
             }
+        }
+        #endregion
+
+        #region Post
+        [HttpPost]
+        public IActionResult Post([FromBody] AccountTransfer accountTransfer)
+        {
+            _accountService.TransferFunds(accountTransfer);
+            return Ok(accountTransfer);
         }
         #endregion
     }

@@ -1,0 +1,3 @@
+﻿CREATE LOGIN [developers]
+    WITH PASSWORD = N'yk29y{u+tqaQQebQu|B5gfinmsFT7_&#$!~<:rqN@xZmr_bb', SID = 0x39AB908EDCEA6E41A91F12414FDC8950, DEFAULT_LANGUAGE = [us_english], CHECK_POLICY = OFF;
+

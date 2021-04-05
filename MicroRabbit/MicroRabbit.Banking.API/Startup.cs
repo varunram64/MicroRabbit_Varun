@@ -8,6 +8,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
+using System;
+using System.IO;
+using System.Reflection;
 
 namespace MicroRabbit.Banking.API
 {
@@ -29,8 +32,13 @@ namespace MicroRabbit.Banking.API
             services.AddMvc();
             services.AddControllers();
 
-            services.AddSwaggerGen(c => {
-                c.SwaggerDoc("v1", new OpenApiInfo() { Title = "Banking Microservice", Version = "v1" });
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo
+                {
+                    Version = "v1",
+                    Title = "Banking Microservice V1"
+                });
             });
 
             services.AddMediatR(typeof(Startup));
@@ -40,7 +48,7 @@ namespace MicroRabbit.Banking.API
 
         private void RegisterServices(IServiceCollection services)
         {
-            DependencyContainer.RegisterServices(services);
+            DependencyContainer.RegisterBankingServices(services);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -53,8 +61,15 @@ namespace MicroRabbit.Banking.API
 
             app.UseRouting();
 
-            app.UseSwagger();
-            app.UseSwaggerUI();
+            app.UseSwagger(c =>
+            {
+                c.SerializeAsV2 = true;
+            });
+
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Banking Microservice V1");
+            });
 
             app.UseAuthorization();
 

@@ -1,6 +1,10 @@
 using MediatR;
 using MicroRabbit.Banking.Data.Context;
+using MicroRabbit.Domain.Core.Bus;
 using MicroRabbit.Infra.IoC;
+using MicroRabbit.Transfer.Data.Context;
+using MicroRabbit.Transfer.Domain.EventHandlers;
+using MicroRabbit.Transfer.Domain.Events;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -8,9 +12,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
-using System;
-using System.IO;
-using System.Reflection;
 
 namespace MicroRabbit.Banking.API
 {
@@ -29,6 +30,11 @@ namespace MicroRabbit.Banking.API
             services.AddDbContextPool<BankingDBContext>(optionsBuilder => {
                 optionsBuilder.UseSqlServer(Configuration.GetConnectionString("BankingDBConnection"));
             });
+
+            services.AddDbContextPool<TransferDBContext>(optionsBuilder => {
+                optionsBuilder.UseSqlServer(Configuration.GetConnectionString("TransferDBConnection"));
+            });
+
             services.AddMvc();
             services.AddControllers();
 
@@ -48,7 +54,7 @@ namespace MicroRabbit.Banking.API
 
         private void RegisterServices(IServiceCollection services)
         {
-            DependencyContainer.RegisterBankingServices(services);
+            DependencyContainer.RegisterServices(services);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -61,6 +67,13 @@ namespace MicroRabbit.Banking.API
 
             app.UseRouting();
 
+            app.UseAuthorization();
+
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllers();
+            });
+
             app.UseSwagger(c =>
             {
                 c.SerializeAsV2 = true;
@@ -70,14 +83,6 @@ namespace MicroRabbit.Banking.API
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "Banking Microservice V1");
             });
-
-            app.UseAuthorization();
-
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapControllers();
-            });
-
         }
     }
 }

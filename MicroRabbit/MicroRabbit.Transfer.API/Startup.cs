@@ -1,4 +1,5 @@
 using MediatR;
+using MicroRabbit.Banking.Data.Context;
 using MicroRabbit.Domain.Core.Bus;
 using MicroRabbit.Infra.IoC;
 using MicroRabbit.Transfer.Data.Context;
@@ -11,7 +12,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
-using System;
 
 namespace MicroRabbit.Transfer.API
 {
@@ -30,6 +30,11 @@ namespace MicroRabbit.Transfer.API
             services.AddDbContextPool<TransferDBContext>(optionsBuilder => {
                 optionsBuilder.UseSqlServer(Configuration.GetConnectionString("TransferDBConnection"));
             });
+
+            services.AddDbContextPool<BankingDBContext>(optionsBuilder => {
+                optionsBuilder.UseSqlServer(Configuration.GetConnectionString("BankingDBConnection"));
+            });
+
             services.AddMvc();
             services.AddControllers();
 
@@ -49,7 +54,7 @@ namespace MicroRabbit.Transfer.API
 
         private void RegisterServices(IServiceCollection services)
         {
-            DependencyContainer.RegisterTransferServices(services);
+            DependencyContainer.RegisterServices(services);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -62,21 +67,21 @@ namespace MicroRabbit.Transfer.API
 
             app.UseRouting();
 
-            app.UseSwagger(c => 
-            {
-                c.SerializeAsV2 = true;
-            });
-
-            app.UseSwaggerUI(c => 
-            { 
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Transfer Microservice V1");
-            });
-
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+            });
+
+            app.UseSwagger(c =>
+            {
+                c.SerializeAsV2 = true;
+            });
+
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Transfer Microservice V1");
             });
 
             ConfigureEventBus(app);

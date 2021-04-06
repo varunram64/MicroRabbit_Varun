@@ -24,7 +24,16 @@ namespace MicroRabbit.Infra.IoC
         public static void RegisterServices(IServiceCollection services)
         {
             #region Domain Bus 
-            services.AddTransient<IEventBus, RabbitMQBus>();
+            // This will help us have a single instance of the RabitMQBus
+            services.AddSingleton<IEventBus, RabbitMQBus>(sp => 
+            {
+                var scopeFactory = sp.GetRequiredService<IServiceScopeFactory>();
+                return new RabbitMQBus(sp.GetService<IMediator>(), scopeFactory);
+            });
+            #endregion
+
+            #region Subscriptions
+            services.AddTransient<TransferEventHandler>();
             #endregion
 
             #region Domain Events
@@ -34,34 +43,17 @@ namespace MicroRabbit.Infra.IoC
             #region Domain Banking Commands
             services.AddTransient<IRequestHandler<CreateTransferCommand, bool>, TransferCommandHandler>();
             #endregion
-        }
-
-        public static void RegisterBankingServices(IServiceCollection services)
-        {
-            RegisterServices(services);
 
             #region Application Services
             services.AddTransient<IAccountService, AccountService>();
-            #endregion
-
-            #region Data
-            services.AddTransient<IAccountRepository, AccountRepository>();
-
-            services.AddTransient<BankingDBContext>();
-            #endregion
-        }
-
-        public static void RegisterTransferServices(IServiceCollection services)
-        {
-            RegisterServices(services);
-
-            #region Application Services
             services.AddTransient<ITransferService, TransferService>();
             #endregion
 
             #region Data
+            services.AddTransient<IAccountRepository, AccountRepository>();
             services.AddTransient<ITransferRepository, TransferRepository>();
 
+            services.AddTransient<BankingDBContext>();
             services.AddTransient<TransferDBContext>();
             #endregion
         }

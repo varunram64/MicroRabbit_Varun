@@ -36,7 +36,7 @@ namespace MicroRabbit.Infra.Bus
 
         public void Publish<T>(T @event) where T : Event
         {
-            var factory = new ConnectionFactory() { HostName="localhost", UserName="admin", Password="AdminUs#r@123" };
+            var factory = new ConnectionFactory() { HostName = "localhost", UserName = "admin", Password = "AdminUs#r@123" };
 
             using (var connection = factory.CreateConnection())
             {

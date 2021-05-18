@@ -1,10 +1,10 @@
 using MediatR;
+using MicroRabbit.Banking.Application.Interfaces;
+using MicroRabbit.Banking.Application.Services;
 using MicroRabbit.Banking.Data.Context;
-using MicroRabbit.Domain.Core.Bus;
+using MicroRabbit.Banking.Data.Repository;
+using MicroRabbit.Banking.Domain.Interfaces;
 using MicroRabbit.Infra.IoC;
-using MicroRabbit.Transfer.Data.Context;
-using MicroRabbit.Transfer.Domain.EventHandlers;
-using MicroRabbit.Transfer.Domain.Events;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -31,10 +31,6 @@ namespace MicroRabbit.Banking.API
                 optionsBuilder.UseSqlServer(Configuration.GetConnectionString("BankingDBConnection"));
             });
 
-            services.AddDbContextPool<TransferDBContext>(optionsBuilder => {
-                optionsBuilder.UseSqlServer(Configuration.GetConnectionString("TransferDBConnection"));
-            });
-
             services.AddMvc();
             services.AddControllers();
 
@@ -48,7 +44,17 @@ namespace MicroRabbit.Banking.API
             });
 
             services.AddMediatR(typeof(Startup));
-            
+
+            #region Application Services
+            services.AddTransient<IAccountService, AccountService>();
+            #endregion
+
+            #region Data
+            services.AddTransient<IAccountRepository, AccountRepository>();
+
+            services.AddTransient<BankingDBContext>();
+            #endregion
+
             RegisterServices(services);
         }
 
